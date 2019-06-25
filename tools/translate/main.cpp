@@ -1,7 +1,7 @@
 #include <iostream>
 #include <vector>
 
-#include "fislater.hpp"
+#include "fislator.hpp"
 
 int main(int argv, char** argc){
     auto j = fispact::from_json("test31.json");

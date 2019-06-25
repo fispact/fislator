@@ -1,4 +1,4 @@
-# FISpact transLATER = FISLATER
+# FISpact transLATOR = FISLATOR
 
 Very early days, so just do:
 
