@@ -10,7 +10,11 @@ int main(int argc, char** argv){
     CLI::App app{"FISPACT-II JSON translator"};
 
     std::string filename = "default";
-    app.add_option("-f,--file", filename, "The FISPACT-II JSON file");
+    bool usecsv = false;
+    app.add_option("-f,--file", filename, "The FISPACT-II JSON file")
+        ->required()
+        ->check(CLI::ExistingFile);
+    app.add_flag("--csv", usecsv, "Option to write csv");
 
     CLI11_PARSE(app, argc, argv);
 
@@ -22,7 +26,8 @@ int main(int argc, char** argv){
     std::string rawname = filename.substr(0, lastindex); 
 
     // to csv
-    fispact::io::to_csv(j, rawname + ".csv");
+    if(usecsv)
+        fispact::io::to_csv(j, rawname + ".csv");
 
     return 0;
 }
