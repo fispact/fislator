@@ -64,10 +64,10 @@ namespace fislator {
                 "isotope"
             };
 
-            std::vector<bool> optionalinventorykeys ={
+            std::vector<std::string> optionalinventorykeys ={
                 "total_mass"
             };
-            std::vector<bool> optionalnuclidekeys ={
+            std::vector<std::string> optionalnuclidekeys ={
                 "zai", 
                 "atoms", 
                 "alpha_activity", 
