@@ -9,19 +9,25 @@ cmake ..
 make
 ```
 
-To run:
+To convert to csv do:
 
 ```bash
 ./fislator -f test.json --csv
+```
+
+Supports multiple file formats (even at the same time). 
+The following does both tab and csv files.
+```bash
+./fislator -f test.json --csv --tab
 ```
 
 ### About
 Translates JSON to other common file formats.
 
 - csv
-- xml
-- hdf5?
 - tabulated?
+- xml?
+- hdf5?
 - ...
 
 
