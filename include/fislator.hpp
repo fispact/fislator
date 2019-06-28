@@ -9,6 +9,8 @@
 
 #include <nlohmann/json.hpp>
 
+#include "exceptions.hpp"
+
 using json = nlohmann::json;
 
 namespace fislator {
@@ -19,11 +21,29 @@ namespace fislator {
         return json::parse(ifs);
     }
 
+    // returns true if valid F-II JSON file, false otherwise
+    bool validate(const json& j){
+        auto it_fispact = j.find("run_data");
+        if (it_fispact == j.end())
+            return false;
+
+        it_fispact = j.find("inventory_data");
+        if (it_fispact == j.end())
+            return false;
+
+        return true;
+    }
+
     // inventory operations
     namespace inventory { 
 
         template<char delimiter, int width=30>
         void to_sep_file(const json& j, std::string name){
+
+            // check is FISPACT-II valid format
+            if(!validate(j))
+                throw InvalidJSONFileException("JSON file is not from FISPACT-II");
+
             std::ofstream ofs;
             ofs.open(name);
 
@@ -31,8 +51,6 @@ namespace fislator {
                 "irradiation_time", 
                 "cooling_time", 
                 "flux", 
-                "element", 
-                "isotope",
                 "grams", 
                 "activity",
                 "alpha_heat", 
@@ -41,13 +59,36 @@ namespace fislator {
                 "half_life",
                 "dose",
                 "ingestion",
-                "inhalation"
+                "inhalation",
+                "element", 
+                "isotope"
             };
 
-            // std::copy(keys.begin(), keys.end()-1, std::ostream_iterator<std::string>(ofs, delimiter));
+            std::vector<bool> optionalinventorykeys ={
+                "total_mass"
+            };
+            std::vector<bool> optionalnuclidekeys ={
+                "zai", 
+                "atoms", 
+                "alpha_activity", 
+                "beta_activity", 
+                "gamma_activity"
+            };
+
+            // original keys
             for(auto it=keys.begin(); it<keys.end()-1;++it)
                 ofs << std::setw(width) << *it << delimiter;
-            ofs << std::setw(width) << keys.back() <<"\n";
+            ofs << std::setw(width) << keys.back();
+
+            // TODO: additional (newly added keys for inventory)
+            // for(auto it=optionalinventorykeys.begin(); it<optionalinventorykeys.end()-1;++it){
+            //     if (it == optionalinventorykeys.begin())
+            //         ofs << delimiter;
+            //     if (j["inventory_data"] != j_object.end()) 
+            //         ofs << std::setw(width) << *it << delimiter;
+            // }
+            // ofs << std::setw(width) << optionalinventorykeys.back();
+            ofs <<"\n";
 
             for (auto& timestep: j["inventory_data"]){
                 for (auto& nuclide: timestep["nuclides"]){
