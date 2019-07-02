@@ -1,7 +1,15 @@
 # FISpact transLATOR = FISLATOR
 
-Very early days, so just do:
+Easy to build via cmake, but does require the following dependencies, provided in the subdirectory 'dependencies':
+- CLI11 (header only)
+- nlohmann_json (header only)
 
+Please use recursive clone to get the dependencies!
+```
+git clone --recursive -j8 https://github.com/fispact/fislator
+```
+
+Then build via:
 ```bash
 mkdir build
 cd build

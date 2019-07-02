@@ -47,10 +47,15 @@ namespace fislator {
             std::ofstream ofs;
             ofs.open(name);
 
-            std::vector<std::string> keys = { 
+            // double value keys
+            const std::vector<std::string> inventorykeys = { 
                 "irradiation_time", 
                 "cooling_time", 
-                "flux", 
+                "flux"
+            };
+
+            // double value keys
+            const std::vector<std::string> nuclidekeys = { 
                 "grams", 
                 "activity",
                 "alpha_heat", 
@@ -59,15 +64,17 @@ namespace fislator {
                 "half_life",
                 "dose",
                 "ingestion",
-                "inhalation",
-                "element", 
-                "isotope"
+                "inhalation"
             };
 
-            std::vector<std::string> optionalinventorykeys ={
+            // string value keys
+            const std::string nuclidenamekey = "nuclide";
+
+            const std::vector<std::string> optionalinventorykeys ={
                 "total_mass"
             };
-            std::vector<std::string> optionalnuclidekeys ={
+            
+            const std::vector<std::string> optionalnuclidekeys ={
                 "zai", 
                 "atoms", 
                 "alpha_activity", 
@@ -75,10 +82,16 @@ namespace fislator {
                 "gamma_activity"
             };
 
-            // original keys
-            for(auto it=keys.begin(); it<keys.end()-1;++it)
+            // inventory keys
+            for(auto it=inventorykeys.begin(); it<inventorykeys.end();++it)
                 ofs << std::setw(width) << *it << delimiter;
-            ofs << std::setw(width) << keys.back();
+
+            // nuclide keys
+            for(auto it=nuclidekeys.begin(); it<nuclidekeys.end();++it)
+                ofs << std::setw(width) << *it << delimiter;
+
+            // nuclide name key
+            ofs << std::setw(width) << nuclidenamekey;
 
             // TODO: additional (newly added keys for inventory)
             // for(auto it=optionalinventorykeys.begin(); it<optionalinventorykeys.end()-1;++it){
@@ -92,26 +105,25 @@ namespace fislator {
 
             for (auto& timestep: j["inventory_data"]){
                 for (auto& nuclide: timestep["nuclides"]){
-                    ofs << std::setw(width) << std::scientific << std::setprecision(15) << timestep["irradiation_time"].get<double>() << delimiter
-                        << std::setw(width) << std::scientific << std::setprecision(15) << timestep["cooling_time"].get<double>() << delimiter
-                        << std::setw(width) << std::scientific << std::setprecision(15) << timestep["flux"].get<double>() << delimiter
-                        << std::setw(width) << nuclide["element"].get<std::string>() << delimiter
-                        << std::setw(width) << nuclide["isotope"].get<int>() << nuclide["state"].get<std::string>() << delimiter
-                        << std::setw(width) << std::scientific << std::setprecision(15) << nuclide["grams"].get<double>() << delimiter
-                        << std::setw(width) << std::scientific << std::setprecision(15) << nuclide["activity"].get<double>() << delimiter
-                        << std::setw(width) << std::scientific << std::setprecision(15) << nuclide["alpha_heat"].get<double>() << delimiter
-                        << std::setw(width) << std::scientific << std::setprecision(15) << nuclide["beta_heat"].get<double>() << delimiter
-                        << std::setw(width) << std::scientific << std::setprecision(15) << nuclide["gamma_heat"].get<double>() << delimiter
-                        << std::setw(width) << std::scientific << std::setprecision(15) << nuclide["half_life"].get<double>() << delimiter
-                        << std::setw(width) << std::scientific << std::setprecision(15) << nuclide["dose"].get<double>() << delimiter
-                        << std::setw(width) << std::scientific << std::setprecision(15) << nuclide["ingestion"].get<double>() << delimiter
-                        << std::setw(width) << std::scientific << std::setprecision(15) << nuclide["inhalation"].get<double>() << "\n";
+                    for(auto it=inventorykeys.begin(); it<inventorykeys.end();++it){
+                        ofs << std::setw(width) << std::scientific << std::setprecision(15) << timestep[*it].get<double>() << delimiter;
+                    }
+
+                    for(auto it=nuclidekeys.begin(); it<nuclidekeys.end();++it){
+                        ofs << std::setw(width) << std::scientific << std::setprecision(15) << nuclide[*it].get<double>() << delimiter;
+                    }
+
+                    // special case - nuclide name
+                    ofs << std::setw(width)
+                        << nuclide["element"].get<std::string>() 
+                        + std::to_string(nuclide["isotope"].get<int>()) 
+                        + nuclide["state"].get<std::string>() << "\n";
                 }
             }
             ofs.close();
         }
 
-        const auto to_csv = to_sep_file<','>;
+        const auto to_csv = to_sep_file<',', 0>;
         const auto to_tab = to_sep_file<' '>;
 
         template <typename T>
