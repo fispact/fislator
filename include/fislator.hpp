@@ -51,11 +51,17 @@ namespace fislator {
             const std::vector<std::string> inventorykeys = { 
                 "irradiation_time", 
                 "cooling_time", 
-                "flux"
+                "flux",
+                "total_mass"
             };
 
             // double value keys
             const std::vector<std::string> nuclidekeys = { 
+                "zai", 
+                "atoms", 
+                "alpha_activity", 
+                "beta_activity", 
+                "gamma_activity",
                 "grams", 
                 "activity",
                 "alpha_heat", 
@@ -64,23 +70,11 @@ namespace fislator {
                 "half_life",
                 "dose",
                 "ingestion",
-                "inhalation"
+                "inhalation",
             };
 
             // string value keys
             const std::string nuclidenamekey = "nuclide";
-
-            const std::vector<std::string> optionalinventorykeys ={
-                "total_mass"
-            };
-            
-            const std::vector<std::string> optionalnuclidekeys ={
-                "zai", 
-                "atoms", 
-                "alpha_activity", 
-                "beta_activity", 
-                "gamma_activity"
-            };
 
             // inventory keys
             for(auto it=inventorykeys.begin(); it<inventorykeys.end();++it)
@@ -92,25 +86,23 @@ namespace fislator {
 
             // nuclide name key
             ofs << std::setw(width) << nuclidenamekey;
-
-            // TODO: additional (newly added keys for inventory)
-            // for(auto it=optionalinventorykeys.begin(); it<optionalinventorykeys.end()-1;++it){
-            //     if (it == optionalinventorykeys.begin())
-            //         ofs << delimiter;
-            //     if (j["inventory_data"] != j_object.end()) 
-            //         ofs << std::setw(width) << *it << delimiter;
-            // }
-            // ofs << std::setw(width) << optionalinventorykeys.back();
             ofs <<"\n";
 
+            double value = -1.0;
             for (auto& timestep: j["inventory_data"]){
                 for (auto& nuclide: timestep["nuclides"]){
                     for(auto it=inventorykeys.begin(); it<inventorykeys.end();++it){
-                        ofs << std::setw(width) << std::scientific << std::setprecision(15) << timestep[*it].get<double>() << delimiter;
+                        value = -1.0;
+                        if (timestep.find(*it) != timestep.end())
+                            value = timestep[*it].get<double>();
+                        ofs << std::setw(width) << std::scientific << std::setprecision(15) << value << delimiter;
                     }
 
                     for(auto it=nuclidekeys.begin(); it<nuclidekeys.end();++it){
-                        ofs << std::setw(width) << std::scientific << std::setprecision(15) << nuclide[*it].get<double>() << delimiter;
+                        value = -1.0;
+                        if (nuclide.find(*it) != nuclide.end())
+                            value = nuclide[*it].get<double>();
+                        ofs << std::setw(width) << std::scientific << std::setprecision(15) << value << delimiter;
                     }
 
                     // special case - nuclide name
